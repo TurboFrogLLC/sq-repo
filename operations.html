@@ -1,0 +1,3152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopQuote - Operations</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        /* Header - Fixed Layout */
+        .app-header {
+            background: linear-gradient(to right, #ffffff 0%, #000000 100%);
+            color: #000000;
+            padding: 20px;
+            width: 100%; /* Full width for fixed layout */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-sizing: border-box;
+            height: 80px; /* Fixed height from design tokens */
+        }
+
+        .brand-container h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .company-tag {
+            font-size: 12px;
+            color: #000000;
+            font-weight: 400;
+        }
+
+        /* Layout Structure - Fixed Width Implementation */
+        .layout-container {
+            width: 1200px; /* Fixed width for consistent layout */
+            min-width: 1200px; /* Prevent squeezing */
+            margin: 100px auto 20px auto; /* Center the fixed width, account for header */
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* Enable horizontal scroll for narrow windows */
+        body {
+            overflow-x: auto;
+            min-width: 800px;
+        }
+
+        /* Sidebar - Fixed Width with Content-Based Height */
+        .sidebar {
+            width: 300px; /* Fixed width from design tokens */
+            background: #f8f9fa;
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 100px; /* Below header */
+            left: 20px; /* Match container padding */
+            height: auto; /* Adjust to content height */
+            max-height: calc(100vh - 120px); /* Prevent overflow beyond viewport */
+            overflow: visible; /* No scrollbar - content dictates height */
+            padding-bottom: 20px; /* 20px padding from last button to bottom */
+        }
+
+        .sidebar-brand {
+            text-align: center;
+            margin: 0 auto 20px auto;
+            padding: 15px;
+            background: linear-gradient(to right, #ffffff 0%, #000000 100%);
+            border-radius: 6px;
+            width: 85%;
+            box-sizing: border-box;
+        }
+
+        .sidebar-brand h2 {
+            margin: 0;
+            color: #111;
+            font-size: 20px;
+        }
+
+        .sidebar-brand .brand-quote {
+            color: #22c55e;
+        }
+
+        /* Main Content - Fixed Width */
+        .main-content {
+            margin-left: 340px; /* 300px sidebar + 40px gap */
+            width: 840px; /* 1200px total - 300px sidebar - 60px margins/padding */
+            min-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Page Content */
+        .page-section {
+            background: white;
+            border: 1px solid #22c55e;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .page-section h1 {
+            color: #111;
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .page-section .page-subtitle {
+            color: #22c55e;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .page-section p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+            background: #ffffff;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Navigation Buttons */
+        .nav-button {
+            display: block;
+            width: 85%;
+            padding: 12px 16px;
+            margin: 0 auto 8px auto;
+            background: #d1d5db;
+            color: #000000;
+            border: 1px solid #22c55e;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .nav-button:hover {
+            background: #22c55e;
+            color: #ffffff;
+            transform: translateY(-1px);
+            border-color: #000000;
+        }
+
+        .nav-button.active {
+            background: #6b7280;
+        }
+
+        /* Operations Table Container */
+        .operations-table-container {
+            background: white;
+            border: 1px solid #22c55e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto; /* For mobile responsiveness */
+        }
+
+        /* Operations Table - Enhanced Visual Design */
+        .operations-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            background: white;
+        }
+
+        .operations-table th, .operations-table td {
+            border: 1px solid #e0e0e0;
+            padding: 5px 12px;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .operations-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #111;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #666666;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .operations-table tbody tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        .operations-table tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .operations-table tbody tr:hover {
+            background-color: rgba(34, 197, 94, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .operations-table tbody td {
+            font-weight: 500;
+            color: #374151;
+            border-bottom: 1px solid #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .operations-table tbody td:first-child {
+            font-weight: 600;
+            color: #111;
+        }
+
+        .operations-table tbody td:last-child {
+            font-weight: 600;
+            color: #000000;
+        }
+
+        /* Sequence arrows styling */
+        .sequence-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            line-height: 1;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .arrow-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .arrow-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Editable cell styling */
+        .editable-cell {
+            padding: 0;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            text-align: center;
+        }
+
+        .editable-cell:focus {
+            outline: 2px solid #22c55e;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .readonly-cell {
+            background: #f8f9fa;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Operation dropdown styling */
+        .operation-select {
+            width: 100%;
+            padding: 2px 4px;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            font-size: 12px;
+            background: white;
+        }
+
+        .operation-select:focus {
+            outline: 2px solid #22c55e;
+            border-color: #22c55e;
+        }
+
+        /* Enhanced Operations Panel System */
+        .operations-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .operation-row {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .operation-row:hover {
+            border-color: #22c55e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .operation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .operation-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .operation-sequence {
+            background: #22c55e;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .operation-fields {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: end;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .operation-fields .editable-cell,
+        .operation-fields .operation-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .operation-fields .readonly-cell {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .detail-picker {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+
+        .detail-picker .field-group {
+            max-width: 300px;
+        }
+
+        .operation-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: #f8f9fa;
+            border-color: #22c55e;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .move-btn {
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 32px;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+            border-color: #b91c1c;
+        }
+
+        .validation-message {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            color: #dc2626;
+            font-size: 12px;
+        }
+
+        .validation-message strong {
+            font-weight: 600;
+        }
+
+        /* Edit mode indicator */
+        .edit-mode-indicator {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Streamlit-style operation row layout */
+        .ops-row-fixed {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+
+        .operation-fields-grid {
+            display: grid;
+            grid-template-columns: 70px 180px 90px 90px 70px 90px;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: end;
+        }
+
+        .ops-actions-fixed {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .action-buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        /* Issues styling */
+        .issue-line {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            color: #dc2626;
+            font-size: 14px;
+        }
+
+        .issue-line strong {
+            font-weight: 600;
+        }
+
+        /* Fix hint styling for per-row validation */
+        .fix-hint {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        /* Edit button styling for table rows */
+        .edit-row-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .edit-row-btn:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        .edit-row-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Operation Card Styles */
+        .operation-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .operation-card:hover {
+            border-color: #22c55e;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .operation-card-content {
+            padding: 16px 20px;
+        }
+
+        /* Embedded Row Format */
+        .operation-row-embedded {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+
+        .operation-row-embedded .operation-fields-grid {
+            display: grid;
+            grid-template-columns: 70px 180px 90px 90px 70px 90px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* 9-Column Grid for Header and Data */
+        .operation-fields-grid-9 {
+            display: grid;
+            grid-template-columns: 70px 180px 90px 90px 70px 90px 70px 90px 90px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Header Panel Styling */
+        .header-panel {
+            background: #f8f9fa !important;
+            border: 2px solid #22c55e !important;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header-label {
+            font-size: 12px;
+            color: #111;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .operation-row-embedded .field-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .operation-row-embedded .field-group label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .operation-row-embedded .operation-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #22c55e;
+            padding: 4px 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            min-width: 40px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .operation-row-embedded .edit-card-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Operations Collection - Multi-panel card */
+        .operations-collection .operation-row-embedded {
+            margin: 8px 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
+        .operations-collection .operation-row-embedded:first-child {
+            margin-top: 0;
+        }
+
+        .operations-collection .operation-row-embedded:last-child {
+            margin-bottom: 0;
+        }
+
+        .edit-card-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .edit-card-btn:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        /* Inline Edit Styling */
+        .inline-edit-form {
+            background: #f8f9fa !important;
+            border: 2px solid #22c55e !important;
+        }
+
+        .inline-action-buttons {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .inline-action-buttons .btn-primary,
+        .inline-action-buttons .btn-secondary {
+            padding: 4px 8px;
+            font-size: 11px;
+            min-width: 50px;
+        }
+
+        /* Single Operation Editor Panel - Updated Styling */
+        .single-operation-editor-panel {
+            background: #f8f9fa;
+            border: 1px solid #ff6b35;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+
+        .editor-panel-header {
+            background: #808080;
+            color: #000000;
+            padding: 6px;
+            border-bottom: none;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-btn {
+            background: #f8f9fa;
+            color: black;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background: #e9ecef;
+            border-color: #ff6b35;
+        }
+
+        .save-btn {
+            background: #f8f9fa;
+        }
+
+        .cancel-btn {
+            background: #f8f9fa;
+        }
+
+        .editor-panel-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .editor-panel-content {
+            padding: 6px;
+            color: black;
+        }
+
+        .editor-panel-content label {
+            color: black;
+        }
+
+        .editor-panel-content input,
+        .editor-panel-content select {
+            color: black;
+            background: white;
+            border-color: #d1d5db;
+        }
+
+        .editor-panel-content input:focus,
+        .editor-panel-content select:focus {
+            border-color: #ff6b35;
+            background: white;
+        }
+
+        /* Remove spinner arrows from number inputs */
+        .no-spinner::-webkit-outer-spin-button,
+        .no-spinner::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .no-spinner[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Sequence arrow buttons */
+        .seq-arrow-btn {
+            background: #d3d3d3;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #333;
+            cursor: pointer;
+            border-radius: 2px;
+            font-weight: bold;
+            min-width: 20px;
+            min-height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .seq-arrow-btn:hover {
+            background: #ff6b35;
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .seq-arrow-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #111;
+            border: 1px solid #22c55e;
+        }
+
+        .btn-secondary:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        /* flatExtract Button Styling */
+        .flat-extract-button {
+            background: linear-gradient(to right, #000000 0%, #ffffff 100%);
+            color: white;
+            border: 2px solid #22c55e;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flat-extract-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .flat-extract-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 50%;
+            bottom: 0;
+            background: linear-gradient(to right, #000000 0%, #ffffff 100%);
+            z-index: -1;
+        }
+
+        .flat-extract-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .flat-extract-text .flat {
+            color: white;
+        }
+
+        .flat-extract-text .extract {
+            color: #dc2626; /* Red color for 'Extract' */
+        }
+
+        /* flatExtract Card Styling - Optimized */
+        .flat-extract-card {
+            background: #f8f9fa;
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            margin: 16px 0 24px 0;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Layout Optimization Classes */
+        .grid-gap-xs { gap: 8px; }
+        .grid-gap-sm { gap: 12px; }
+        .grid-gap-md { gap: 16px; }
+        .grid-gap-lg { gap: 24px; }
+        .grid-gap-xl { gap: 32px; }
+
+        /* Optimized flatExtract sections */
+        .flat-extract-section {
+            margin-bottom: 20px;
+        }
+
+        .flat-extract-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .flat-extract-section h4 {
+            margin: 0 0 12px 0;
+            color: #111;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Optimized form groups */
+        .flat-extract-section .form-group {
+            margin-bottom: 12px;
+        }
+
+        .flat-extract-section .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .flat-extract-section .form-group label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        /* Optimized bend rows */
+        .bend-row {
+            margin-bottom: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+
+        .bend-row:hover {
+            background: #f1f3f4;
+            border-color: #22c55e;
+        }
+
+        .bend-row .bend-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 8px;
+        }
+
+        /* Optimized results section */
+        .results-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .results-section h4 {
+            margin: 0 0 16px 0;
+            color: #111;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .results-item {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .results-item .result-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .results-item .result-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #22c55e;
+        }
+
+        /* Optimized action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: center;
+        }
+
+        .action-buttons .btn-primary,
+        .action-buttons .btn-secondary {
+            flex: 0 0 auto;
+            min-width: 120px;
+        }
+
+        /* Advanced options styling */
+        .advanced-options {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .flat-extract-header {
+            background: #22c55e;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .flat-extract-header:hover {
+            background: #16a34a;
+        }
+
+        .flat-extract-content {
+            display: none;
+            padding: 20px;
+            background: white;
+        }
+
+        .flat-extract-content.expanded {
+            display: block;
+        }
+
+        .flat-extract-toggle {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .flat-extract-card.expanded .flat-extract-toggle {
+            transform: rotate(90deg);
+        }
+
+        /* Fixed Layout - No Responsive Scaling */
+        /* Horizontal scroll for narrow windows */
+        @media (max-width: 1300px) {
+            body {
+                overflow-x: auto;
+            }
+            .layout-container {
+                margin-left: 20px; /* Maintain left margin for scroll */
+            }
+        }
+
+        /* Emergency mobile layout - stack vertically */
+        @media (max-width: 900px) {
+            .layout-container {
+                width: 100%;
+                margin: 100px 10px 20px 10px;
+                padding: 0 10px;
+            }
+
+            .sidebar {
+                position: static;
+                width: 100%;
+                margin-bottom: 20px;
+                height: auto;
+                left: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        /* Global Rates Expanding Container */
+        .global-rates-container {
+            width: 85%;
+            margin: 0 auto 8px auto;
+            border-radius: 6px;
+            overflow: visible;
+            transition: all 0.3s ease;
+            border: 1px solid #22c55e;
+        }
+
+        .global-rates-container:hover {
+            border-color: #000000;
+        }
+
+        .global-rates-toggle {
+            width: 100% !important;
+            margin: 0 !important;
+            position: relative;
+            background: #d1d5db !important;
+            color: #000000 !important;
+            border: none !important;
+            border-radius: 6px !important;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            text-align: center;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .global-rates-toggle:hover {
+            background: #22c55e !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+
+        .global-rates-arrow {
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .global-rates-container.expanded .global-rates-arrow {
+            transform: rotate(180deg);
+        }
+
+        .global-rates-content {
+            max-height: 0;
+            overflow: hidden;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-top: none;
+            transition: max-height 0.3s ease;
+            padding: 0 12px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .global-rates-container.expanded .global-rates-content {
+            max-height: 180px;
+            padding: 12px;
+        }
+
+        /* Adjust sidebar height when expanded */
+        .sidebar:has(.global-rates-container.expanded) {
+            height: calc(100vh - 140px) !important;
+        }
+
+        /* Green border for Settings button */
+        #btn-settings {
+            border: 1px solid #22c55e !important;
+        }
+
+        /* Extra small screens */
+        @media (max-width: 768px) {
+            .welcome-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Optimize flatExtract for mobile */
+            .flat-extract-content .layout-container {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .action-buttons .btn-primary,
+            .action-buttons .btn-secondary {
+                width: 100%;
+                min-width: unset;
+            }
+
+            /* Optimize Global Rates for mobile */
+            .global-rates-container.expanded .global-rates-content {
+                max-height: 200px;
+            }
+
+            /* Adjust mobile sidebar height when expanded */
+            .sidebar:has(.global-rates-container.expanded) {
+                height: auto !important;
+                max-height: calc(100vh - 140px) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Header -->
+    <div class="app-header">
+        <h1><span style='color:#111;'>shop</span><span style='color:#22c55e;'>Quote</span></h1>
+        <div class="company-tag">powered by Turbo Frog LLC</div>
+    </div>
+
+    <!-- Main Layout Container -->
+    <div class="layout-container">
+        <!-- Sidebar (30%) -->
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <h2><span style="color: white;">shop</span><span class="brand-quote">Quote</span></h2>
+            </div>
+
+            <div class="form-group">
+                <label for="quote-number">Quote #</label>
+                <input type="text" id="quote-number" value="SQ-20250101-001" style="padding: 12px 16px; background: #ffffff; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 85%; margin: 0 auto; display: block; box-sizing: border-box; text-align: left;">
+            </div>
+
+            <hr style="border: 1px solid #22c55e; margin: 15px auto; width: 85%;">
+
+            <button id="btn-part-summary" class="nav-button" onclick="navigateToPartSummary()">Part Summary</button>
+            <button id="btn-quote-breakdown" class="nav-button" onclick="navigateToQuoteBreakdown()">Quote Breakdown</button>
+            <button id="btn-quote-summary" class="nav-button" onclick="navigateToQuoteSummary()">Quote Summary</button>
+
+            <hr style="border: 1px solid #22c55e; margin: 15px auto; width: 85%;">
+
+            <!-- Global Rates Expanding Container -->
+            <div class="global-rates-container">
+                <button class="global-rates-toggle nav-button" onclick="toggleGlobalRates()">
+                    Global Rates <span class="global-rates-arrow">↓</span>
+                </button>
+                <div class="global-rates-content" id="globalRatesContent">
+                    <div class="form-group" style="margin: 8px 0;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Setup Rate ($/min)</label>
+                        <input type="number" id="setupRate" step="1.0" value="50.00" min="0" style="padding: 6px 8px; font-size: 12px;">
+                    </div>
+                    <div class="form-group" style="margin: 8px 0;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Labor Rate ($/min)</label>
+                        <input type="number" id="laborRate" step="0.1" value="35.00" min="0" style="padding: 6px 8px; font-size: 12px;">
+                    </div>
+                    <div class="form-group" style="margin: 8px 0;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Machine Rate ($/min)</label>
+                        <input type="number" id="machineRate" step="0.1" value="45.00" min="0" style="padding: 6px 8px; font-size: 12px;">
+                    </div>
+                    <button class="btn-secondary" onclick="applyGlobalRates()" style="width: 100%; margin-top: 8px; padding: 8px 12px; font-size: 12px; text-align: center;">
+                        Apply Rates
+                    </button>
+                </div>
+            </div>
+
+            <button id="btn-settings" class="nav-button" onclick="openSettings()">Settings</button>
+
+            <hr style="border: 1px solid #22c55e; margin: 15px auto; width: 85%;">
+            <button id="btn-save-quote" class="nav-button" onclick="saveQuote()">Save Quote</button>
+            <button id="btn-start-new-quote" class="nav-button" onclick="startNewQuote()">Start New Quote</button>
+
+            <hr style="border: 1px solid #22c55e; margin: 15px auto; width: 85%;">
+
+            <!-- Operations Edit Mode Toggle -->
+            <div id="edit-mode-controls">
+                <button id="btn-edit-operations" class="nav-button" onclick="enterEditMode()">🛠️ Edit Operations</button>
+            </div>
+            <div id="edit-mode-actions" style="display: none;">
+                <button id="btn-save-changes" class="nav-button" onclick="saveChanges()">💾 Save Changes</button>
+                <button id="btn-cancel-edit" class="nav-button" onclick="cancelEdit()">✖️ Cancel</button>
+            </div>
+        </div>
+
+        <!-- Main Content (70%) -->
+        <div class="main-content">
+            <!-- Operations Section -->
+            <div class="page-section">
+                <h1>Operations</h1>
+
+                <!-- flatExtract Advanced Calculator Card -->
+                <div class="flat-extract-card" id="flatExtractCard">
+                    <div class="flat-extract-header" onclick="toggleFlatExtract()">
+                        <span>📐 Flat Extract</span>
+                        <div class="flat-extract-button">
+                            <span class="flat-extract-text">
+                                <span class="flat">flat</span><span class="extract">Extract</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flat-extract-content" id="flatExtractContent">
+                        <!-- Two Column Layout - Optimized -->
+                        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;">
+
+                            <!-- Left Column: Basic Inputs -->
+                            <div class="flat-extract-section">
+                                <h4>Basic Dimensions</h4>
+
+                                <!-- Units Toggle -->
+                                <div style="margin-bottom: 15px;">
+                                    <label style="font-weight: 600; color: #111; margin-right: 10px;">Units:</label>
+                                    <label style="margin-right: 15px;">
+                                        <input type="radio" name="units" value="in" checked onchange="changeUnits(this.value)">
+                                        in
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="units" value="mm" onchange="changeUnits(this.value)">
+                                        mm
+                                    </label>
+                                </div>
+
+                                <!-- Material Selection -->
+                                <div class="form-group">
+                                    <label>Material</label>
+                                    <select id="flatMaterial" onchange="updateThicknessOptions()">
+                                        <option value="">Select Material</option>
+                                        <option value="CRS">CRS</option>
+                                        <option value="HRS">HRS</option>
+                                        <option value="SS">SS</option>
+                                        <option value="ALUMINUM">ALUMINUM</option>
+                                        <option value="COPPER">COPPER</option>
+                                        <option value="BRASS">BRASS</option>
+                                    </select>
+                                </div>
+
+                                <!-- Thickness Selection -->
+                                <div class="form-group">
+                                    <label>Thickness</label>
+                                    <select id="flatThickness">
+                                        <option value="">Select Thickness</option>
+                                    </select>
+                                </div>
+
+                                <!-- Base Dimensions -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="grid-gap-sm">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Base X</label>
+                                        <input type="number" id="baseX" step="0.001" placeholder="0.000">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Base Y</label>
+                                        <input type="number" id="baseY" step="0.001" placeholder="0.000">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Bend Configuration -->
+                            <div class="flat-extract-section">
+                                <h4>Bend Configuration</h4>
+
+                                <!-- Bend Counts -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;" class="grid-gap-sm">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Bends X</label>
+                                        <input type="number" id="bendsX" min="0" max="20" value="0">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Bends Y</label>
+                                        <input type="number" id="bendsY" min="0" max="20" value="0">
+                                    </div>
+                                </div>
+
+                                <!-- All Bends Equal Toggle -->
+                                <div style="margin-bottom: 16px;">
+                                    <label style="font-weight: 500; color: #374151;">
+                                        <input type="checkbox" id="allEqual" checked onchange="toggleBendMode()">
+                                        All bends equal
+                                    </label>
+                                </div>
+
+                                <!-- Bend Definitions Container -->
+                                <div id="bendDefinitions">
+                                    <!-- Dynamic content will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Options -->
+                        <div class="advanced-options">
+                            <div style="margin-bottom: 16px;">
+                                <label style="font-weight: 500; color: #374151;">
+                                    <input type="checkbox" id="showAdvanced" onchange="toggleAdvanced()">
+                                    Advanced Options
+                                </label>
+                            </div>
+
+                            <div id="advancedOptions" style="display: none;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;" class="grid-gap-md">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>K-factor</label>
+                                        <input type="number" id="kFactor" step="0.01" value="0.44" min="0" max="1">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label>Radius Mode</label>
+                                        <select id="radiusMode" onchange="toggleRadiusInput()">
+                                            <option value="auto">Auto (R = max(T, 0.030"))</option>
+                                            <option value="manual">Manual</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="manualRadius" style="display: none; margin-top: 12px;">
+                                    <label>Manual R</label>
+                                    <input type="number" id="manualRadiusValue" step="0.001" placeholder="0.000">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div id="resultsSection" class="results-section" style="display: none;">
+                            <h4>Results</h4>
+                            <div class="results-grid">
+                                <div class="results-item">
+                                    <div class="result-label">Flat Size</div>
+                                    <div class="result-value" id="flatSize">—</div>
+                                </div>
+                                <div class="results-item">
+                                    <div class="result-label">Area</div>
+                                    <div class="result-value" id="calcArea">0.00 sq in</div>
+                                </div>
+                                <div class="results-item">
+                                    <div class="result-label">Weight</div>
+                                    <div class="result-value" id="calcWeight">0.00 lbs</div>
+                                </div>
+                                <div class="results-item">
+                                    <div class="result-label">Total Bends</div>
+                                    <div class="result-value" id="totalBends">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn-primary" onclick="calculateFlatExtract()">Calculate</button>
+                            <button class="btn-primary" onclick="applyFlatExtract()">Apply to Quote</button>
+                            <button class="btn-secondary" onclick="resetFlatExtract()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Operations Container - Card-Based Layout -->
+                <div id="operationsContainer">
+                    <!-- Operations cards will be dynamically inserted here -->
+                </div>
+
+
+                <!-- Issues Section -->
+                <div id="issuesSection" style="display: none;">
+                    <h3>Issues</h3>
+                    <div id="issuesList"></div>
+                </div>
+
+
+                <!-- Add Operation Form -->
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; color: #111;">Add New Operation</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Operation</label>
+                            <select style="padding: 8px 12px; font-size: 12px;">
+                                <option>Select Operation</option>
+                                <option>Laser Cutting</option>
+                                <option>Forming</option>
+                                <option>Deburring</option>
+                                <option>Welding</option>
+                                <option>Hardware Installation</option>
+                                <option>Outside Process</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Setup (min)</label>
+                            <input type="number" placeholder="0" style="padding: 8px 12px; font-size: 12px;">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Time (sec)</label>
+                            <input type="number" placeholder="0" style="padding: 8px 12px; font-size: 12px;">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Hardware</label>
+                            <input type="text" placeholder="Optional" style="padding: 8px 12px; font-size: 12px;">
+                        </div>
+                    </div>
+                    <button class="btn-primary" style="padding: 8px 16px; font-size: 14px;">Add Operation</button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-primary">Save Operations</button>
+                    <button class="btn-secondary">Reset to Default</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        function startNewQuote() {
+            window.location.href = 'welcome.html';
+        }
+
+        function navigateToPartSummary() {
+            window.location.href = 'part-summary.html';
+        }
+
+        function navigateToQuoteBreakdown() {
+            window.location.href = 'quote-breakdown.html';
+        }
+
+        function navigateToQuoteSummary() {
+            window.location.href = 'quote-summary.html';
+        }
+
+        function openSettings() {
+            alert('Settings modal would open here');
+        }
+
+        function saveQuote() {
+            alert('Quote saved successfully!');
+        }
+
+        // Operations Editor Logic
+
+        // Application State
+        let editMode = false;
+        let operationsData = [
+            { seq: 1, operation: 'Plan', setup_min: 2, ops: 1, time_sec: 12, cost_per_part: 0.63, op_detail: null },
+            { seq: 2, operation: 'Laser', setup_min: 30, ops: 1, time_sec: 45, cost_per_part: 2.25, op_detail: null },
+            { seq: 3, operation: 'Form', setup_min: 15, ops: 2, time_sec: 120, cost_per_part: 1.88, op_detail: null },
+            { seq: 4, operation: 'Deburr', setup_min: 5, ops: 1, time_sec: 30, cost_per_part: 0.31, op_detail: null },
+            { seq: 5, operation: 'Install', setup_min: 10, ops: 4, time_sec: 60, cost_per_part: 0.63, op_detail: 'PEM' },
+            { seq: 6, operation: 'Final Insp.', setup_min: 2, ops: 1, time_sec: 12, cost_per_part: 0.13, op_detail: null },
+            { seq: 7, operation: 'Package', setup_min: 1, ops: 1, time_sec: 6, cost_per_part: 0.06, op_detail: null }
+        ];
+        let opsEditBuffer = JSON.parse(JSON.stringify(operationsData)); // Working copy
+
+        // Dropdown options
+        const opsNameOptions = [
+            'Plan', 'Laser', 'Form', 'Deburr', 'Install', 'Final Insp.', 'Package',
+            'Weld', 'Grind', 'Polish', 'Paint', 'Assemble', 'Test', 'Outside Process'
+        ];
+
+        const hardwareOptions = [
+            'PEM', 'FH', 'CLS', 'Rivet', 'Screw', 'Nut', 'Washer', 'Bolt', 'Stud'
+        ];
+
+        const outsideProcOptions = [
+            'Anodize', 'Powdercoat', 'Chemfilm', 'Passivate', 'Plating', 'Painting'
+        ];
+
+        // Helper functions
+        function resequenceOps(ops) {
+            return ops.map((op, index) => ({ ...op, seq: index + 1 }));
+        }
+
+        function isInstall(opName) {
+            return ['Install', 'Hardware Installation'].includes(opName);
+        }
+
+        function isOutsideProc(opName) {
+            return opName === 'Outside Process';
+        }
+
+        function sanitizeNumeric(value, asInt = false) {
+            const num = parseFloat(value);
+            if (isNaN(num)) return null;
+            return asInt ? Math.floor(num) : num;
+        }
+
+        // Edit Mode Functions
+        function enterEditMode() {
+            editMode = true;
+            opsEditBuffer = JSON.parse(JSON.stringify(operationsData)); // Deep copy
+
+            document.getElementById('edit-mode-controls').style.display = 'none';
+            document.getElementById('edit-mode-actions').style.display = 'block';
+
+            renderOperationsEditMode();
+        }
+
+        function saveChanges() {
+            operationsData = resequenceOps(opsEditBuffer);
+            editMode = false;
+
+            document.getElementById('edit-mode-controls').style.display = 'block';
+            document.getElementById('edit-mode-actions').style.display = 'none';
+
+            renderOperationsViewMode();
+            alert('Operations updated successfully!');
+        }
+
+        function cancelEdit() {
+            opsEditBuffer = JSON.parse(JSON.stringify(operationsData)); // Discard edits
+            editMode = false;
+
+            document.getElementById('edit-mode-controls').style.display = 'block';
+            document.getElementById('edit-mode-actions').style.display = 'none';
+
+            renderOperationsViewMode();
+        }
+
+        // Rendering Functions
+        function renderOperationsViewMode() {
+            const container = document.getElementById('operationsContainer');
+            const issuesSection = document.getElementById('issuesSection');
+
+            container.style.display = 'block';
+            issuesSection.style.display = 'none';
+
+            operationsData = resequenceOps(operationsData);
+
+            container.innerHTML = '';
+
+            if (operationsData.length === 0) {
+                container.innerHTML = '<p>No operations yet.</p>';
+                return;
+            }
+
+            // Create table container with operations table
+            const operationsTable = createOperationsTableContainer(operationsData);
+            container.appendChild(operationsTable);
+
+            // Show issues if any
+            const issues = collectAllIssues(operationsData);
+            if (Object.keys(issues).length > 0) {
+                issuesSection.style.display = 'block';
+                const issuesList = document.getElementById('issuesList');
+                issuesList.innerHTML = '';
+
+                Object.entries(issues).forEach(([seq, msgs]) => {
+                    msgs.forEach(msg => {
+                        const issueDiv = document.createElement('div');
+                        issueDiv.className = 'issue-line';
+                        issueDiv.textContent = `Row ${seq}: ${msg}`;
+                        issuesList.appendChild(issueDiv);
+                    });
+                });
+            }
+        }
+
+        function renderOperationsEditMode() {
+            const container = document.getElementById('operationsContainer');
+            const issuesSection = document.getElementById('issuesSection');
+
+            container.style.display = 'block';
+            issuesSection.style.display = 'none';
+
+            container.innerHTML = '';
+
+            let buf = resequenceOps(opsEditBuffer);
+            opsEditBuffer = buf; // Update the buffer
+
+            const header = document.createElement('div');
+            header.className = 'edit-mode-indicator';
+            header.innerHTML = '<strong>Edit Operations</strong>';
+            container.appendChild(header);
+
+            buf.forEach((row, i) => {
+                const panel = createOperationEditPanel(row, i, buf);
+                container.appendChild(panel);
+            });
+
+            opsEditBuffer = resequenceOps(opsEditBuffer);
+        }
+
+        function createOperationEditPanel(row, i, buf) {
+            const panel = document.createElement('div');
+            panel.className = 'operation-row';
+            panel.setAttribute('data-index', i);
+
+            const name = (row.operation || "").trim();
+            let nameOptions = [...opsNameOptions];
+
+            if (name && !nameOptions.includes(name)) {
+                nameOptions = [name, ...nameOptions.filter(opt => opt !== name)];
+            }
+
+            // Get current values for form fields
+            const currentSetup = row.setup_min || 0;
+            const currentOps = row.ops || 1;
+            const currentTime = row.time_sec || 0;
+            const currentCost = row.cost_per_part || 0.0;
+
+            panel.innerHTML = `
+                <div class="ops-row-fixed">
+                    <div class="operation-fields-grid">
+                        <div class="field-group">
+                            <label>Operation [seq ${i+1}]</label>
+                            <select class="operation-select" id="op-${i}-select" onchange="handleOperationChange(${i}, this.value)">
+                                ${nameOptions.map(opt =>
+                                    `<option value="${opt}" ${opt === name ? 'selected' : ''}>${opt}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label>Setup [min]</label>
+                            <input type="text" class="editable-cell" id="op-${i}-setup" value="${currentSetup}" onchange="updateNumericField(${i}, 'setup_min', this.value)">
+                        </div>
+
+                        <div class="field-group">
+                            <label>＃ of Ops</label>
+                            <input type="text" class="editable-cell" id="op-${i}-ops" value="${currentOps}" onchange="updateNumericField(${i}, 'ops', this.value)">
+                        </div>
+
+                        <div class="field-group">
+                            <label>Time [sec]</label>
+                            <input type="text" class="editable-cell" id="op-${i}-time" value="${currentTime}" onchange="updateNumericField(${i}, 'time_sec', this.value)">
+                        </div>
+
+                        <div class="field-group">
+                            <label>$/Part</label>
+                            <input type="text" class="readonly-cell" id="op-${i}-cpp" value="$${currentCost.toFixed(2)}" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-picker" id="detail-picker-${i}" style="display: none;">
+                    <div class="field-group">
+                        <label id="detail-label-${i}"></label>
+                        <select class="operation-select" id="detail-select-${i}" onchange="updateDetailField(${i}, this.value)">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="ops-actions-fixed">
+                    <div class="action-buttons-grid">
+                        <button class="action-btn move-btn" id="op-${i}-up" onclick="moveOperation(${i}, -1)" ${i === 0 ? 'disabled' : ''}>↑ Move Up</button>
+                        <button class="action-btn move-btn" id="op-${i}-down" onclick="moveOperation(${i}, 1)" ${i === buf.length - 1 ? 'disabled' : ''}>↓ Move Down</button>
+                        <button class="action-btn" id="op-${i}-ins-above" onclick="insertOperation(${i}, 'above')">Insert Above</button>
+                        <button class="action-btn" id="op-${i}-ins-below" onclick="insertOperation(${i}, 'below')">Insert Below</button>
+                        <button class="action-btn delete-btn" id="op-${i}-del" onclick="deleteOperation(${i})">Delete Row</button>
+                    </div>
+                </div>
+
+                <div class="validation-message" id="validation-${i}" style="display: none;"></div>
+            `;
+
+            return panel;
+        }
+
+        // Operation Management Functions
+        function handleOperationChange(index, selectedName) {
+            const row = opsEditBuffer[index];
+
+            // Conditional detail picker
+            if (isInstall(selectedName)) {
+                showHardwarePicker(index, row);
+            } else if (isOutsideProc(selectedName)) {
+                showOutsideProcPicker(index, row);
+            } else {
+                hideDetailPicker(index);
+            }
+
+            row.operation = selectedName;
+            updateRowFields(index);
+
+            // Per-row validation hint
+            const issues = collectAllIssues([row]);
+            const validationDiv = document.getElementById(`validation-${index}`);
+            if (issues[1] && issues[1].length > 0) { // 1-based indexing
+                validationDiv.style.display = 'block';
+                validationDiv.innerHTML = `<div class='fix-hint'>Fix required: ${issues[1].join(' | ')}</div>`;
+            } else {
+                validationDiv.style.display = 'none';
+            }
+        }
+
+        function showHardwarePicker(index, row) {
+            const picker = document.getElementById(`detail-picker-${index}`);
+            const label = document.getElementById(`detail-label-${index}`);
+            const select = document.getElementById(`detail-select-${index}`);
+
+            picker.style.display = 'block';
+            label.textContent = 'Hardware Item';
+
+            const hwOpts = hardwareOptions.length > 0 ? hardwareOptions : ["— none found —"];
+            const name = (row.operation || "").trim();
+            const currentDetail = isInstall(name) ? row.op_detail : null;
+            const detailIdx = (currentDetail && hwOpts.includes(currentDetail)) ? hwOpts.indexOf(currentDetail) : 0;
+
+            select.innerHTML = hwOpts.map((hw, idx) =>
+                `<option value="${hw}" ${idx === detailIdx ? 'selected' : ''}>${hw}</option>`
+            ).join('');
+
+            row.op_detail = hwOpts[detailIdx];
+        }
+
+        function showOutsideProcPicker(index, row) {
+            const picker = document.getElementById(`detail-picker-${index}`);
+            const label = document.getElementById(`detail-label-${index}`);
+            const select = document.getElementById(`detail-select-${index}`);
+
+            picker.style.display = 'block';
+            label.textContent = 'Outside Process';
+
+            const opOpts = outsideProcOptions.length > 0 ? outsideProcOptions : ["— none found —"];
+            const name = (row.operation || "").trim();
+            const currentDetail = isOutsideProc(name) ? row.op_detail : null;
+            const detailIdx = (currentDetail && opOpts.includes(currentDetail)) ? opOpts.indexOf(currentDetail) : 0;
+
+            select.innerHTML = opOpts.map((proc, idx) =>
+                `<option value="${proc}" ${idx === detailIdx ? 'selected' : ''}>${proc}</option>`
+            ).join('');
+
+            row.op_detail = opOpts[detailIdx];
+        }
+
+        function hideDetailPicker(index) {
+            // Like Streamlit: else: row["op_detail"] = None
+            const picker = document.getElementById(`detail-picker-${index}`);
+            picker.style.display = 'none';
+            opsEditBuffer[index].op_detail = null;
+        }
+
+        function updateDetailField(index, value) {
+            // Like Streamlit: row["op_detail"] = st.selectbox(...)
+            opsEditBuffer[index].op_detail = value;
+        }
+
+        function updateNumericField(index, field, value) {
+            const asInt = field === 'ops';
+            const sanitized = sanitizeNumeric(value, asInt);
+
+            if (sanitized !== null) {
+                opsEditBuffer[index][field] = sanitized;
+            }
+
+            updateRowFields(index);
+        }
+
+        function updateRowFields(index) {
+            const row = opsEditBuffer[index];
+
+            // Update the input fields to reflect current values
+            const setupInput = document.getElementById(`op-${index}-setup`);
+            const opsInput = document.getElementById(`op-${index}-ops`);
+            const timeInput = document.getElementById(`op-${index}-time`);
+            const cppInput = document.getElementById(`op-${index}-cpp`);
+
+            if (setupInput) setupInput.value = row.setup_min || 0;
+            if (opsInput) opsInput.value = row.ops || 1;
+            if (timeInput) timeInput.value = row.time_sec || 0;
+            if (cppInput) cppInput.value = `$${row.cost_per_part.toFixed(2)}`;
+
+            recalculateCosts();
+        }
+
+        function moveOperation(index, direction) {
+            if ((direction === -1 && index > 0) || (direction === 1 && index < opsEditBuffer.length - 1)) {
+                opsEditBuffer = moveOperationInBuffer(opsEditBuffer, index, direction);
+                renderOperationsEditMode();
+            }
+        }
+
+        function insertOperation(index, position) {
+            opsEditBuffer = insertOperationInBuffer(opsEditBuffer, index, position);
+            renderOperationsEditMode();
+        }
+
+        function deleteOperation(index) {
+            if (opsEditBuffer.length > 1) { // Keep at least one operation
+                opsEditBuffer = deleteOperationFromBuffer(opsEditBuffer, index);
+                renderOperationsEditMode();
+            } else {
+                alert('Cannot delete the last operation.');
+            }
+        }
+
+        // Helper functions
+        function moveOperationInBuffer(buffer, index, direction) {
+            const newIndex = index + direction;
+            [buffer[index], buffer[newIndex]] = [buffer[newIndex], buffer[index]];
+            return resequenceOps(buffer);
+        }
+
+        function insertOperationInBuffer(buffer, index, position) {
+            const newOp = {
+                seq: 0, // Will be resequenced
+                operation: 'Plan',
+                setup_min: 0,
+                ops: 1,
+                time_sec: 0,
+                cost_per_part: 0.0,
+                op_detail: null
+            };
+
+            const insertIndex = position === 'above' ? index : index + 1;
+            buffer.splice(insertIndex, 0, newOp);
+            return resequenceOps(buffer);
+        }
+
+        function deleteOperationFromBuffer(buffer, index) {
+            buffer.splice(index, 1);
+            return resequenceOps(buffer);
+        }
+
+        function recalculateCosts() {
+            opsEditBuffer.forEach(op => {
+                // Simple cost calculation (would be more sophisticated in real implementation)
+                const setupCost = op.setup_min * 1.25;
+                const runtimeCost = (op.time_sec * op.ops) * 0.00833; // Convert to minutes and apply rate
+                op.cost_per_part = setupCost + runtimeCost;
+            });
+        }
+
+        // Validation system
+        function collectAllIssues(ops) {
+            const issues = {};
+            ops.forEach((op, index) => {
+                const msgs = [];
+                if (!op.operation || op.operation.trim() === '') {
+                    msgs.push("Operation name is required");
+                }
+                if (op.setup_min < 0) {
+                    msgs.push("Setup time cannot be negative");
+                }
+                if (op.ops <= 0) {
+                    msgs.push("Number of operations must be positive");
+                }
+                if (op.time_sec < 0) {
+                    msgs.push("Time cannot be negative");
+                }
+                if (msgs.length > 0) {
+                    issues[index + 1] = msgs; // 1-based indexing
+                }
+            });
+            return issues;
+        }
+
+        // Create header panel with column labels
+        function createOperationsHeaderPanel() {
+            const header = document.createElement('div');
+            header.className = 'operation-row-embedded header-panel';
+
+            header.innerHTML = `
+                <div class="operation-fields-grid-9">
+                    <div class="field-group">
+                        <span class="header-label">Seq</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label">Operation</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label">Plan</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label">Setup [min]</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label">Setup $</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label"># of Ops</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label">Time [sec]</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label">$/Part</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="header-label"></span>
+                    </div>
+                </div>
+            `;
+
+            return header;
+        }
+
+        // Create table container with operations table wrapped in card
+        function createOperationsTableContainer(operations) {
+            const card = document.createElement('div');
+            card.className = 'operation-card';
+
+            const cardContent = document.createElement('div');
+            cardContent.className = 'operation-card-content';
+
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'operations-table-container';
+
+            let tableHtml = `
+                <table class="operations-table">
+                    <thead>
+                        <tr>
+                            <th>Seq</th>
+                            <th>Operation</th>
+                            <th>Setup [min]</th>
+                            <th>Setup $</th>
+                            <th># of Ops</th>
+                            <th>Time [sec]</th>
+                            <th>$/Part</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            operations.forEach(op => {
+                // Calculate setup cost
+                const setupCost = op.setup_min * 1.25;
+
+                tableHtml += `
+                        <tr data-seq="${op.seq}">
+                            <td>${op.seq}</td>
+                            <td>
+                                <span class="operation-value">${op.operation}</span>
+                            </td>
+                            <td>
+                                <span class="operation-value">${op.setup_min}</span>
+                            </td>
+                            <td>
+                                <span class="operation-value">$${setupCost.toFixed(2)}</span>
+                            </td>
+                            <td>
+                                <span class="operation-value">${op.ops}</span>
+                            </td>
+                            <td>
+                                <span class="operation-value">${op.time_sec}</span>
+                            </td>
+                            <td>
+                                <span class="operation-value">$${op.cost_per_part.toFixed(2)}</span>
+                            </td>
+                            <td>
+                                <button class="edit-row-btn" onclick="editOperation(${op.seq})">Edit</button>
+                            </td>
+                        </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+
+            tableContainer.innerHTML = tableHtml;
+            cardContent.appendChild(tableContainer);
+
+            // Add single operation editor panel inside the card
+            const editorContainer = document.createElement('div');
+            editorContainer.id = 'singleOperationEditor';
+            editorContainer.style.display = 'none';
+            editorContainer.style.marginTop = '24px';
+            cardContent.appendChild(editorContainer);
+
+            card.appendChild(cardContent);
+
+            return card;
+        }
+
+        // Legacy function - kept for compatibility
+        function createOperationCard(op) {
+            return createOperationsCollectionCard([op]);
+        }
+
+        // Get appropriate icon for operation type
+        function getOperationIcon(operation) {
+            const icons = {
+                'Plan': '📋',
+                'Laser': '⚡',
+                'Form': '🔨',
+                'Deburr': '🪚',
+                'Install': '🔧',
+                'Final Insp.': '👁️',
+                'Package': '📦',
+                'Weld': '🔥',
+                'Grind': '⚙️',
+                'Polish': '✨',
+                'Paint': '🎨',
+                'Assemble': '🧩',
+                'Test': '🧪',
+                'Outside Process': '🚚'
+            };
+            return icons[operation] || '⚙️';
+        }
+
+        // Single Operation Editor Functions
+        function handleSingleOperationChange(seq, selectedName) {
+            // Handle operation type change for single operation
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            // Conditional detail picker
+            if (isInstall(selectedName)) {
+                showSingleHardwarePicker(seq, operationData);
+            } else if (isOutsideProc(selectedName)) {
+                showSingleOutsideProcPicker(seq, operationData);
+            } else {
+                hideSingleDetailPicker(seq);
+            }
+
+            // Update operation
+            operationData.operation = selectedName;
+
+            // Per-row validation hint
+            const issues = collectAllIssues([operationData]);
+            const validationDiv = document.getElementById(`edit-validation-${seq}`);
+            if (issues[1] && issues[1].length > 0) {
+                validationDiv.style.display = 'block';
+                validationDiv.innerHTML = `<div class='fix-hint'>Fix required: ${issues[1].join(' | ')}</div>`;
+            } else {
+                validationDiv.style.display = 'none';
+            }
+        }
+
+        function handleSingleOperationInput(seq, inputValue) {
+            // Handle real-time input changes for operation field
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            // Update operation value in real-time
+            operationData.operation = inputValue.trim();
+
+            // Conditional detail picker based on current input
+            if (isInstall(inputValue)) {
+                showSingleHardwarePicker(seq, operationData);
+            } else if (isOutsideProc(inputValue)) {
+                showSingleOutsideProcPicker(seq, operationData);
+            } else {
+                hideSingleDetailPicker(seq);
+            }
+        }
+
+        function updateSingleNumericField(seq, field, value) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            const asInt = field === 'ops';
+            const sanitized = sanitizeNumeric(value, asInt);
+
+            if (sanitized !== null) {
+                operationData[field] = sanitized;
+                recalculateCosts();
+                updateSingleSetupCostDisplay(seq);
+            }
+        }
+
+        function updateSingleDetailField(seq, value) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            operationData.op_detail = value;
+            recalculateCosts();
+        }
+
+        function updateSingleSetupCostDisplay(seq) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            // Update setup cost display
+            const setupCost = operationData.setup_min * 1.25;
+            const setupCostInput = document.getElementById(`edit-op-${seq}-setup-cost`);
+            if (setupCostInput) {
+                setupCostInput.value = `$${setupCost.toFixed(2)}`;
+            }
+        }
+
+        function showSingleHardwarePicker(seq, row) {
+            const picker = document.getElementById(`edit-detail-picker-${seq}`);
+            const label = document.getElementById(`edit-detail-label-${seq}`);
+            const select = document.getElementById(`edit-detail-select-${seq}`);
+
+            picker.style.display = 'block';
+            label.textContent = 'Hardware Item';
+
+            const hwOpts = hardwareOptions.length > 0 ? hardwareOptions : ["— none found —"];
+            const currentDetail = isInstall(row.operation) ? row.op_detail : null;
+            const detailIdx = (currentDetail && hwOpts.includes(currentDetail)) ? hwOpts.indexOf(currentDetail) : 0;
+
+            select.innerHTML = hwOpts.map((hw, idx) =>
+                `<option value="${hw}" ${idx === detailIdx ? 'selected' : ''}>${hw}</option>`
+            ).join('');
+
+            row.op_detail = hwOpts[detailIdx];
+        }
+
+        function showSingleOutsideProcPicker(seq, row) {
+            const picker = document.getElementById(`edit-detail-picker-${seq}`);
+            const label = document.getElementById(`edit-detail-label-${seq}`);
+            const select = document.getElementById(`edit-detail-select-${seq}`);
+
+            picker.style.display = 'block';
+            label.textContent = 'Outside Process';
+
+            const opOpts = outsideProcOptions.length > 0 ? outsideProcOptions : ["— none found —"];
+            const currentDetail = isOutsideProc(row.operation) ? row.op_detail : null;
+            const detailIdx = (currentDetail && opOpts.includes(currentDetail)) ? opOpts.indexOf(currentDetail) : 0;
+
+            select.innerHTML = opOpts.map((proc, idx) =>
+                `<option value="${proc}" ${idx === detailIdx ? 'selected' : ''}>${proc}</option>`
+            ).join('');
+
+            row.op_detail = opOpts[detailIdx];
+        }
+
+        function hideSingleDetailPicker(seq) {
+            const picker = document.getElementById(`edit-detail-picker-${seq}`);
+            picker.style.display = 'none';
+
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (operationData) {
+                operationData.op_detail = null;
+            }
+        }
+
+        function saveSingleOperationEdit(seq) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            // Validate the operation
+            const issues = collectAllIssues([operationData]);
+            if (issues[seq] && issues[seq].length > 0) {
+                const validationDiv = document.getElementById(`edit-validation-${seq}`);
+                validationDiv.style.display = 'block';
+                validationDiv.innerHTML = `<div class='fix-hint'>Please fix: ${issues[seq].join(' | ')}</div>`;
+                return;
+            }
+
+            // Hide validation if no issues
+            const validationDiv = document.getElementById(`edit-validation-${seq}`);
+            if (validationDiv) {
+                validationDiv.style.display = 'none';
+            }
+
+            // Hide the editor and refresh the view
+            const editorContainer = document.getElementById('singleOperationEditor');
+            if (editorContainer) {
+                editorContainer.style.display = 'none';
+            }
+
+            // Refresh the operations view
+            renderOperationsViewMode();
+
+            alert('Operation updated successfully!');
+        }
+
+        function cancelSingleOperationEdit(seq) {
+            // Hide the editor without saving changes
+            const editorContainer = document.getElementById('singleOperationEditor');
+            if (editorContainer) {
+                editorContainer.style.display = 'none';
+            }
+        }
+
+        function moveOperationUp(seq) {
+            const operationIndex = operationsData.findIndex(op => op.seq === seq);
+            if (operationIndex > 0) {
+                // Swap with the previous operation
+                [operationsData[operationIndex], operationsData[operationIndex - 1]] =
+                [operationsData[operationIndex - 1], operationsData[operationIndex]];
+
+                // Re-sequence all operations
+                operationsData.forEach((op, index) => {
+                    op.seq = index + 1;
+                });
+
+                // Update the table display
+                renderOperationsViewMode();
+            }
+        }
+
+        function moveOperationDown(seq) {
+            const operationIndex = operationsData.findIndex(op => op.seq === seq);
+            if (operationIndex < operationsData.length - 1) {
+                // Swap with the next operation
+                [operationsData[operationIndex], operationsData[operationIndex + 1]] =
+                [operationsData[operationIndex + 1], operationsData[operationIndex]];
+
+                // Re-sequence all operations
+                operationsData.forEach((op, index) => {
+                    op.seq = index + 1;
+                });
+
+                // Update the table display
+                renderOperationsViewMode();
+            }
+        }
+
+        function incrementOps(seq) {
+            const input = document.getElementById(`edit-op-${seq}-ops`);
+            if (input) {
+                const currentValue = parseInt(input.value) || 0;
+                input.value = currentValue + 1;
+                updateSingleNumericField(seq, 'ops', input.value);
+            }
+        }
+
+        function decrementOps(seq) {
+            const input = document.getElementById(`edit-op-${seq}-ops`);
+            if (input) {
+                const currentValue = parseInt(input.value) || 0;
+                if (currentValue > 0) {
+                    input.value = currentValue - 1;
+                    updateSingleNumericField(seq, 'ops', input.value);
+                }
+            }
+        }
+
+        // Inline Editing Functions
+        function handleInlineOperationChange(seq, selectedName) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            // Conditional detail picker
+            if (isInstall(selectedName)) {
+                showInlineHardwarePicker(seq, operationData);
+            } else if (isOutsideProc(selectedName)) {
+                showInlineOutsideProcPicker(seq, operationData);
+            } else {
+                hideInlineDetailPicker(seq);
+            }
+
+            operationData.operation = selectedName;
+            recalculateCosts();
+            updateInlineCostDisplay(seq);
+        }
+
+        function updateInlineNumericField(seq, field, value) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            const asInt = field === 'ops';
+            const sanitized = sanitizeNumeric(value, asInt);
+
+            if (sanitized !== null) {
+                operationData[field] = sanitized;
+                recalculateCosts();
+                updateInlineCostDisplay(seq);
+            }
+        }
+
+        function updateInlineDetailField(seq, value) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            operationData.op_detail = value;
+        }
+
+        function updateInlineCostDisplay(seq) {
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            // Update setup cost
+            const setupCost = operationData.setup_min * 1.25;
+            const setupCostInput = document.getElementById(`inline-op-${seq}-setup-cost`);
+            if (setupCostInput) {
+                setupCostInput.value = `$${setupCost.toFixed(2)}`;
+            }
+
+            // Update total cost per part
+            const costInput = document.getElementById(`inline-op-${seq}-cpp`);
+            if (costInput) {
+                costInput.value = `$${operationData.cost_per_part.toFixed(2)}`;
+            }
+        }
+
+        function showInlineHardwarePicker(seq, row) {
+            const picker = document.getElementById(`inline-detail-picker-${seq}`);
+            const label = document.getElementById(`inline-detail-label-${seq}`);
+            const select = document.getElementById(`inline-detail-select-${seq}`);
+
+            picker.style.display = 'block';
+            label.textContent = 'Hardware Item';
+
+            const hwOpts = hardwareOptions.length > 0 ? hardwareOptions : ["— none found —"];
+            const name = (row.operation || "").trim();
+            const currentDetail = isInstall(name) ? row.op_detail : null;
+            const detailIdx = (currentDetail && hwOpts.includes(currentDetail)) ? hwOpts.indexOf(currentDetail) : 0;
+
+            select.innerHTML = hwOpts.map((hw, idx) =>
+                `<option value="${hw}" ${idx === detailIdx ? 'selected' : ''}>${hw}</option>`
+            ).join('');
+
+            row.op_detail = hwOpts[detailIdx];
+        }
+
+        function showInlineOutsideProcPicker(seq, row) {
+            const picker = document.getElementById(`inline-detail-picker-${seq}`);
+            const label = document.getElementById(`inline-detail-label-${seq}`);
+            const select = document.getElementById(`inline-detail-select-${seq}`);
+
+            picker.style.display = 'block';
+            label.textContent = 'Outside Process';
+
+            const opOpts = outsideProcOptions.length > 0 ? outsideProcOptions : ["— none found —"];
+            const name = (row.operation || "").trim();
+            const currentDetail = isOutsideProc(name) ? row.op_detail : null;
+            const detailIdx = (currentDetail && opOpts.includes(currentDetail)) ? opOpts.indexOf(currentDetail) : 0;
+
+            select.innerHTML = opOpts.map((proc, idx) =>
+                `<option value="${proc}" ${idx === detailIdx ? 'selected' : ''}>${proc}</option>`
+            ).join('');
+
+            row.op_detail = opOpts[detailIdx];
+        }
+
+        function hideInlineDetailPicker(seq) {
+            const picker = document.getElementById(`inline-detail-picker-${seq}`);
+            if (picker) {
+                picker.style.display = 'none';
+            }
+
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (operationData) {
+                operationData.op_detail = null;
+            }
+        }
+
+        function saveInlineEdit(seq) {
+            // Validate the operation
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            const issues = collectAllIssues([operationData]);
+            if (issues[seq] && issues[seq].length > 0) {
+                const validationDiv = document.getElementById(`inline-validation-${seq}`);
+                validationDiv.style.display = 'block';
+                validationDiv.innerHTML = `<div class='fix-hint'>Please fix: ${issues[seq].join(' | ')}</div>`;
+                return;
+            }
+
+            // Hide validation if no issues
+            const validationDiv = document.getElementById(`inline-validation-${seq}`);
+            if (validationDiv) {
+                validationDiv.style.display = 'none';
+            }
+
+            // Replace edit form with view panel
+            const editRow = document.querySelector(`.inline-edit-form[data-seq="${seq}"]`);
+            const detailRow = document.querySelector(`.detail-picker-row[data-seq="${seq}"]`);
+
+            if (editRow && detailRow) {
+                const viewPanel = createOperationViewPanel(operationData);
+                const tbody = editRow.parentNode;
+
+                // Replace both edit rows with the single view row
+                tbody.replaceChild(viewPanel, editRow);
+                tbody.removeChild(detailRow);
+            }
+
+            alert('Operation updated successfully!');
+        }
+
+        function cancelInlineEdit(seq) {
+            // Find the operation data and restore original values
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) return;
+
+            // Replace edit form with view panel
+            const editRow = document.querySelector(`.inline-edit-form[data-seq="${seq}"]`);
+            const detailRow = document.querySelector(`.detail-picker-row[data-seq="${seq}"]`);
+
+            if (editRow && detailRow) {
+                const viewPanel = createOperationViewPanel(operationData);
+                const tbody = editRow.parentNode;
+
+                // Replace both edit rows with the single view row
+                tbody.replaceChild(viewPanel, editRow);
+                tbody.removeChild(detailRow);
+            }
+        }
+
+        // Create single operation view panel (table row format)
+        function createOperationViewPanel(operationData) {
+            const panel = document.createElement('tr');
+            panel.setAttribute('data-seq', operationData.seq);
+
+            // Calculate setup cost
+            const setupCost = operationData.setup_min * 1.25;
+
+            panel.innerHTML = `
+                <td>${operationData.seq}</td>
+                <td>
+                    <span class="operation-value">${operationData.operation}</span>
+                </td>
+                <td>
+                    <span class="operation-value">Plan</span>
+                </td>
+                <td>
+                    <span class="operation-value">${operationData.setup_min}</span>
+                </td>
+                <td>
+                    <span class="operation-value">$${setupCost.toFixed(2)}</span>
+                </td>
+                <td>
+                    <span class="operation-value">${operationData.ops}</span>
+                </td>
+                <td>
+                    <span class="operation-value">${operationData.time_sec}</span>
+                </td>
+                <td>
+                    <span class="operation-value">$${operationData.cost_per_part.toFixed(2)}</span>
+                </td>
+                <td>
+                    <button class="edit-row-btn" onclick="editOperation(${operationData.seq})">Edit</button>
+                </td>
+            `;
+
+            return panel;
+        }
+
+
+
+        // Single Operation Edit Function - Uses dedicated editor panel
+        function editOperation(seq) {
+            console.log('Edit operation:', seq);
+
+            // Find the operation data
+            const operationData = operationsData.find(op => op.seq === seq);
+            if (!operationData) {
+                console.error('Operation not found:', seq);
+                return;
+            }
+
+            // Create single operation editor panel
+            const editContainer = document.getElementById('singleOperationEditor');
+            if (!editContainer) {
+                console.error('Single operation editor container not found');
+                return;
+            }
+
+            // Clear any existing content
+            editContainer.innerHTML = '';
+
+            // Create the edit panel using existing function
+            const editPanel = createSingleOperationEditPanel(operationData);
+
+            // Add to container
+            editContainer.appendChild(editPanel);
+
+            // Show the container
+            editContainer.style.display = 'block';
+
+            // Scroll to the editor
+            editContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Create inline edit form for operation (table row format)
+        function createInlineEditForm(row) {
+            const form = document.createElement('tr');
+            form.className = 'inline-edit-form';
+            form.setAttribute('data-seq', row.seq);
+
+            // Get current values for form fields
+            const currentSetup = row.setup_min || 0;
+            const currentOps = row.ops || 1;
+            const currentTime = row.time_sec || 0;
+            const currentCost = row.cost_per_part || 0.0;
+
+            form.innerHTML = `
+                <td>${row.seq}</td>
+                <td>
+                    <select class="operation-select" id="inline-op-${row.seq}-select" onchange="handleInlineOperationChange(${row.seq}, this.value)">
+                        ${opsNameOptions.map(opt =>
+                            `<option value="${opt}" ${opt === row.operation ? 'selected' : ''}>${opt}</option>`
+                        ).join('')}
+                    </select>
+                </td>
+                <td>
+                    <span class="operation-value">Plan</span>
+                </td>
+                <td>
+                    <input type="text" class="editable-cell" id="inline-op-${row.seq}-setup" value="${currentSetup}" onchange="updateInlineNumericField(${row.seq}, 'setup_min', this.value)">
+                </td>
+                <td>
+                    <input type="text" class="readonly-cell" id="inline-op-${row.seq}-setup-cost" value="$${(currentSetup * 1.25).toFixed(2)}" readonly>
+                </td>
+                <td>
+                    <input type="text" class="editable-cell" id="inline-op-${row.seq}-ops" value="${currentOps}" onchange="updateInlineNumericField(${row.seq}, 'ops', this.value)">
+                </td>
+                <td>
+                    <input type="text" class="editable-cell" id="inline-op-${row.seq}-time" value="${currentTime}" onchange="updateInlineNumericField(${row.seq}, 'time_sec', this.value)">
+                </td>
+                <td>
+                    <input type="text" class="readonly-cell" id="inline-op-${row.seq}-cpp" value="$${currentCost.toFixed(2)}" readonly>
+                </td>
+                <td>
+                    <div class="inline-action-buttons">
+                        <button class="btn-primary" onclick="saveInlineEdit(${row.seq})">Save</button>
+                        <button class="btn-secondary" onclick="cancelInlineEdit(${row.seq})">Cancel</button>
+                    </div>
+                </td>
+            `;
+
+            // Add detail picker and validation message as additional rows
+            const detailRow = document.createElement('tr');
+            detailRow.className = 'detail-picker-row';
+            detailRow.innerHTML = `
+                <td colspan="9">
+                    <div class="detail-picker" id="inline-detail-picker-${row.seq}" style="display: none;">
+                        <div class="field-group">
+                            <label id="inline-detail-label-${row.seq}"></label>
+                            <select class="operation-select" id="inline-detail-select-${row.seq}" onchange="updateInlineDetailField(${row.seq}, this.value)">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="validation-message" id="inline-validation-${row.seq}" style="display: none;"></div>
+                </td>
+            `;
+
+            // Create a container for both rows
+            const container = document.createElement('tbody');
+            container.appendChild(form);
+            container.appendChild(detailRow);
+
+            return container;
+        }
+
+        // Create single operation edit panel (matching Add New Operation format)
+        function createSingleOperationEditPanel(row) {
+            const panel = document.createElement('div');
+            panel.className = 'single-operation-editor-panel';
+            panel.setAttribute('data-seq', row.seq);
+
+            // Get current values for form fields
+            const currentSetup = row.setup_min || 0;
+            const currentOps = row.ops || 1;
+            const currentTime = row.time_sec || 0;
+            const currentHardware = row.op_detail || '';
+
+            panel.innerHTML = `
+                <div class="editor-panel-header">
+                    <h3><span style="color: white;">edit</span><span style="color: #ff6b35;">Operation</span></h3>
+                    <div style="display: flex; gap: 8px; margin-left: auto;">
+                        <button class="header-btn cancel-btn" onclick="cancelSingleOperationEdit(${row.seq})">Cancel</button>
+                        <button class="header-btn save-btn" onclick="saveSingleOperationEdit(${row.seq})">Save</button>
+                    </div>
+                </div>
+
+                <div class="editor-panel-content">
+                    <div style="display: grid; grid-template-columns: 70px 180px 90px 90px 70px 90px; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Seq</label>
+                            <div style="position: relative;">
+                                <input type="number" placeholder="0" style="padding: 8px 30px 8px 12px; font-size: 12px;" id="edit-op-${row.seq}-seq" value="${row.seq}" readonly>
+                                <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 1px;">
+                                    <button type="button" class="seq-arrow-btn" onclick="moveOperationUp(${row.seq})" style="padding: 1px 3px; font-size: 8px; line-height: 1; min-width: 12px; min-height: 10px;">▲</button>
+                                    <button type="button" class="seq-arrow-btn" onclick="moveOperationDown(${row.seq})" style="padding: 1px 3px; font-size: 8px; line-height: 1; min-width: 12px; min-height: 10px;">▼</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Operation</label>
+                            <input type="text" list="operations-list-${row.seq}" style="padding: 8px 12px; font-size: 12px;" id="edit-op-${row.seq}-select" value="${row.operation}" onchange="handleSingleOperationChange(${row.seq}, this.value)" oninput="handleSingleOperationInput(${row.seq}, this.value)">
+                            <datalist id="operations-list-${row.seq}">
+                                ${opsNameOptions.map(opt => `<option value="${opt}">`).join('')}
+                            </datalist>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Setup (min)</label>
+                            <input type="number" class="no-spinner" placeholder="0" style="padding: 8px 12px; font-size: 12px;" id="edit-op-${row.seq}-setup" value="${currentSetup}" onchange="updateSingleNumericField(${row.seq}, 'setup_min', this.value)">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Setup $</label>
+                            <input type="text" placeholder="0.00" style="padding: 8px 12px; font-size: 12px;" id="edit-op-${row.seq}-setup-cost" value="$${(currentSetup * 1.25).toFixed(2)}" readonly>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;"># of Ops</label>
+                            <div style="position: relative;">
+                                <input type="number" placeholder="0" style="padding: 8px 30px 8px 12px; font-size: 12px;" id="edit-op-${row.seq}-ops" value="${currentOps}" onchange="updateSingleNumericField(${row.seq}, 'ops', this.value)">
+                                <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 1px;">
+                                    <button type="button" class="seq-arrow-btn" onclick="incrementOps(${row.seq})" style="padding: 1px 3px; font-size: 8px; line-height: 1; min-width: 12px; min-height: 10px;">▲</button>
+                                    <button type="button" class="seq-arrow-btn" onclick="decrementOps(${row.seq})" style="padding: 1px 3px; font-size: 8px; line-height: 1; min-width: 12px; min-height: 10px;">▼</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 12px;">Time (sec)</label>
+                            <input type="number" class="no-spinner" placeholder="0" style="padding: 8px 12px; font-size: 12px;" id="edit-op-${row.seq}-time" value="${currentTime}" onchange="updateSingleNumericField(${row.seq}, 'time_sec', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="detail-picker" id="edit-detail-picker-${row.seq}" style="display: none;">
+                        <div class="field-group">
+                            <label id="edit-detail-label-${row.seq}"></label>
+                            <select class="operation-select" id="edit-detail-select-${row.seq}" onchange="updateSingleDetailField(${row.seq}, this.value)">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="validation-message" id="edit-validation-${row.seq}" style="display: none;"></div>
+                </div>
+            `;
+
+            return panel;
+        }
+
+        // Initialization
+        function initializeOperationsEditor() {
+            editMode = false;
+            renderOperationsViewMode();
+        }
+
+        // Global Rates functionality
+        function toggleGlobalRates() {
+            const container = document.querySelector('.global-rates-container');
+            container.classList.toggle('expanded');
+        }
+
+        function applyGlobalRates() {
+            const setupRate = parseFloat(document.getElementById('setupRate').value) || 0;
+            const laborRate = parseFloat(document.getElementById('laborRate').value) || 0;
+            const machineRate = parseFloat(document.getElementById('machineRate').value) || 0;
+
+            // Validate inputs
+            if (setupRate < 0 || laborRate < 0 || machineRate < 0) {
+                alert('Rate values cannot be negative');
+                return;
+            }
+
+            // Store rates globally
+            const rates = {
+                setup: setupRate,
+                labor: laborRate,
+                machine: machineRate,
+                timestamp: new Date().toISOString()
+            };
+
+            // Store in localStorage for persistence
+            localStorage.setItem('globalRates', JSON.stringify(rates));
+
+            // Call backend if available
+            if (typeof invoke !== 'undefined') {
+                invoke('apply_global_rates', setupRate, laborRate, machineRate)
+                    .then(result => {
+                        alert('Global rates applied successfully!');
+                    })
+                    .catch(error => {
+                        console.error('Error applying global rates:', error);
+                        alert('Error applying global rates: ' + error.message);
+                    });
+            } else {
+                alert('Global rates applied successfully!');
+            }
+        }
+
+        // Load saved rates on page load
+        function loadGlobalRates() {
+            const savedRates = localStorage.getItem('globalRates');
+            if (savedRates) {
+                try {
+                    const rates = JSON.parse(savedRates);
+                    document.getElementById('setupRate').value = rates.setup || 50.00;
+                    document.getElementById('laborRate').value = rates.labor || 35.00;
+                    document.getElementById('machineRate').value = rates.machine || 45.00;
+                } catch (e) {
+                    console.error('Error loading saved rates:', e);
+                }
+            }
+        }
+
+        // flatExtract functionality - Advanced Implementation
+        let currentUnits = 'in';
+        let thicknessOptions = {
+            'CRS': ['0.0478" (18GA)', '0.0598" (16GA)', '0.0747" (14GA)', '0.1250"', '0.1875"', '0.2500"', '0.3125"', '0.3750"'],
+            'HRS': ['0.0478" (18GA)', '0.0598" (16GA)', '0.0747" (14GA)', '0.1250"', '0.1875"', '0.2500"', '0.3125"', '0.3750"'],
+            'SS': ['0.0478" (18GA)', '0.0598" (16GA)', '0.0747" (14GA)', '0.1250"', '0.1875"', '0.2500"', '0.3125"', '0.3750"'],
+            'ALUMINUM': ['0.032"', '0.040"', '0.050"', '0.063"', '0.080"', '0.100"', '0.125"', '0.160"', '0.190"', '0.250"'],
+            'COPPER': ['0.032"', '0.040"', '0.050"', '0.063"', '0.080"', '0.100"', '0.125"'],
+            'BRASS': ['0.032"', '0.040"', '0.050"', '0.063"', '0.080"', '0.100"', '0.125"']
+        };
+
+        function toggleFlatExtract() {
+            const card = document.getElementById('flatExtractCard');
+            const content = document.getElementById('flatExtractContent');
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                card.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                card.classList.add('expanded');
+                // Initialize bend definitions when opening
+                updateBendDefinitions();
+            }
+        }
+
+        function changeUnits(units) {
+            currentUnits = units;
+            // Update labels and convert values
+            const unitLabels = document.querySelectorAll('[id*="base"], [id*="flange"]');
+            unitLabels.forEach(label => {
+                if (label.textContent.includes('[')) {
+                    label.textContent = label.textContent.replace(/\[[^\]]*\]/, `[${units}]`);
+                }
+            });
+        }
+
+        function updateThicknessOptions() {
+            const material = document.getElementById('flatMaterial').value;
+            const thicknessSelect = document.getElementById('flatThickness');
+
+            // Clear existing options
+            thicknessSelect.innerHTML = '<option value="">Select Thickness</option>';
+
+            if (material && thicknessOptions[material]) {
+                thicknessOptions[material].forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    thicknessSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function toggleBendMode() {
+            updateBendDefinitions();
+        }
+
+        function updateBendDefinitions() {
+            const allEqual = document.getElementById('allEqual').checked;
+            const bendsX = parseInt(document.getElementById('bendsX').value) || 0;
+            const bendsY = parseInt(document.getElementById('bendsY').value) || 0;
+            const container = document.getElementById('bendDefinitions');
+
+            if (allEqual) {
+                // Show single inputs for X and Y
+                container.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="grid-gap-sm">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Flange X [${currentUnits}]</label>
+                            <input type="number" id="equalFlangeX" step="0.001" placeholder="0.000">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Angle X [deg]</label>
+                            <input type="number" id="equalAngleX" step="0.1" value="90" min="0" max="180">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;" class="grid-gap-sm">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Flange Y [${currentUnits}]</label>
+                            <input type="number" id="equalFlangeY" step="0.001" placeholder="0.000">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Angle Y [deg]</label>
+                            <input type="number" id="equalAngleY" step="0.1" value="90" min="0" max="180">
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Show dynamic rows for each bend
+                const maxBends = Math.max(bendsX, bendsY);
+                let html = '';
+
+                for (let i = 0; i < maxBends; i++) {
+                    html += `
+                        <div class="bend-row">
+                            <div class="bend-header">Bend ${i + 1}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;" class="grid-gap-xs">
+                                <div class="form-group" style="margin: 0;">
+                                    <label>Flange X</label>
+                                    <input type="number" id="flangeX${i}" step="0.001" placeholder="0.000" ${i >= bendsX ? 'disabled' : ''}>
+                                </div>
+                                <div class="form-group" style="margin: 0;">
+                                    <label>Angle X</label>
+                                    <input type="number" id="angleX${i}" step="0.1" value="90" min="0" max="180" ${i >= bendsX ? 'disabled' : ''}>
+                                </div>
+                                <div class="form-group" style="margin: 0;">
+                                    <label>Flange Y</label>
+                                    <input type="number" id="flangeY${i}" step="0.001" placeholder="0.000" ${i >= bendsY ? 'disabled' : ''}>
+                                </div>
+                                <div class="form-group" style="margin: 0;">
+                                    <label>Angle Y</label>
+                                    <input type="number" id="angleY${i}" step="0.1" value="90" min="0" max="180" ${i >= bendsY ? 'disabled' : ''}>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            }
+        }
+
+        function toggleAdvanced() {
+            const showAdvanced = document.getElementById('showAdvanced').checked;
+            const advancedOptions = document.getElementById('advancedOptions');
+            advancedOptions.style.display = showAdvanced ? 'block' : 'none';
+        }
+
+        function toggleRadiusInput() {
+            const radiusMode = document.getElementById('radiusMode').value;
+            const manualRadius = document.getElementById('manualRadius');
+            manualRadius.style.display = radiusMode === 'manual' ? 'block' : 'none';
+        }
+
+        function calculateFlatExtract() {
+            // Get form values
+            const baseX = parseFloat(document.getElementById('baseX').value) || 0;
+            const baseY = parseFloat(document.getElementById('baseY').value) || 0;
+            const material = document.getElementById('flatMaterial').value;
+            const thicknessStr = document.getElementById('flatThickness').value;
+            const bendsX = parseInt(document.getElementById('bendsX').value) || 0;
+            const bendsY = parseInt(document.getElementById('bendsY').value) || 0;
+            const allEqual = document.getElementById('allEqual').checked;
+
+            // Validation
+            const errors = [];
+            if (baseX <= 0) errors.push("Base X must be positive");
+            if (baseY <= 0) errors.push("Base Y must be positive");
+            if (!material) errors.push("Please select a material");
+            if (!thicknessStr) errors.push("Please select a thickness");
+            if (bendsX < 0 || bendsX > 20) errors.push("Bends X must be between 0 and 20");
+            if (bendsY < 0 || bendsY > 20) errors.push("Bends Y must be between 0 and 20");
+
+            if (errors.length > 0) {
+                alert("Validation Errors:\n" + errors.join("\n"));
+                return;
+            }
+
+            // Parse thickness
+            const thicknessMatch = thicknessStr.match(/([\d.]+)/);
+            const thickness = thicknessMatch ? parseFloat(thicknessMatch[1]) : 0.125;
+
+            // Get advanced options
+            const kFactor = parseFloat(document.getElementById('kFactor').value) || 0.44;
+            const radiusMode = document.getElementById('radiusMode').value;
+            const manualRadius = radiusMode === 'manual' ? (parseFloat(document.getElementById('manualRadiusValue').value) || 0) : Math.max(thickness, 0.030);
+
+            // Calculate bends
+            let totalBendDeductionX = 0;
+            let totalBendDeductionY = 0;
+            let totalFlangeX = 0;
+            let totalFlangeY = 0;
+
+            if (allEqual) {
+                // Equal bends
+                const flangeX = parseFloat(document.getElementById('equalFlangeX').value) || 0;
+                const angleX = parseFloat(document.getElementById('equalAngleX').value) || 90;
+                const flangeY = parseFloat(document.getElementById('equalFlangeY').value) || 0;
+                const angleY = parseFloat(document.getElementById('equalAngleY').value) || 90;
+
+                for (let i = 0; i < bendsX; i++) {
+                    totalBendDeductionX += calculateBendDeduction(angleX, manualRadius, kFactor, thickness);
+                    totalFlangeX += flangeX;
+                }
+                for (let i = 0; i < bendsY; i++) {
+                    totalBendDeductionY += calculateBendDeduction(angleY, manualRadius, kFactor, thickness);
+                    totalFlangeY += flangeY;
+                }
+            } else {
+                // Individual bends
+                for (let i = 0; i < bendsX; i++) {
+                    const flange = parseFloat(document.getElementById(`flangeX${i}`).value) || 0;
+                    const angle = parseFloat(document.getElementById(`angleX${i}`).value) || 90;
+                    totalBendDeductionX += calculateBendDeduction(angle, manualRadius, kFactor, thickness);
+                    totalFlangeX += flange;
+                }
+                for (let i = 0; i < bendsY; i++) {
+                    const flange = parseFloat(document.getElementById(`flangeY${i}`).value) || 0;
+                    const angle = parseFloat(document.getElementById(`angleY${i}`).value) || 90;
+                    totalBendDeductionY += calculateBendDeduction(angle, manualRadius, kFactor, thickness);
+                    totalFlangeY += flange;
+                }
+            }
+
+            // Calculate flat dimensions
+            const flatX = Math.max(0.01, baseX + totalFlangeX - totalBendDeductionX);
+            const flatY = Math.max(0.01, baseY + totalFlangeY - totalBendDeductionY);
+            const area = flatX * flatY;
+
+            // Calculate weight
+            const densities = {
+                'CRS': 0.2840, 'HRS': 0.2840, 'SS': 0.2890,
+                'ALUMINUM': 0.0975, 'COPPER': 0.3230, 'BRASS': 0.3070
+            };
+            const weight = area * thickness * (densities[material] || 0);
+
+            // Update results
+            document.getElementById('flatSize').textContent = `${flatX.toFixed(3)} × ${flatY.toFixed(3)} in`;
+            document.getElementById('calcArea').textContent = `${area.toFixed(3)} sq in`;
+            document.getElementById('calcWeight').textContent = `${weight.toFixed(3)} lbs`;
+            document.getElementById('totalBends').textContent = (bendsX + bendsY).toString();
+
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+
+        function calculateBendDeduction(angle, radius, kFactor, thickness) {
+            // Bend Allowance = θ(rad) × (R + K × T)
+            const bendAllowance = (angle * Math.PI / 180) * (radius + kFactor * thickness);
+
+            // Bend Deduction = 2 × SB - BA, where SB = (R + T) × tan(θ/2 in rad)
+            const sb = (radius + thickness) * Math.tan((angle / 2) * Math.PI / 180);
+            const bendDeduction = 2 * sb - bendAllowance;
+
+            return bendDeduction;
+        }
+
+        function applyFlatExtract() {
+            const baseX = parseFloat(document.getElementById('baseX').value) || 0;
+            const baseY = parseFloat(document.getElementById('baseY').value) || 0;
+            const material = document.getElementById('flatMaterial').value;
+
+            if (baseX > 0 && baseY > 0) {
+                // Call Taipy backend function
+                if (typeof invoke !== 'undefined') {
+                    invoke('apply_flat_extract', baseX, baseY, material)
+                        .then(result => {
+                            if (result) {
+                                alert(`Applied flat dimensions: ${baseX}" × ${baseY}" to quote`);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error applying flat extract:', error);
+                            alert('Error applying flat extract: ' + error.message);
+                        });
+                } else {
+                    // Fallback for non-Taipy environment
+                    alert(`Applied flat dimensions: ${baseX}" × ${baseY}" to quote`);
+                }
+            } else {
+                alert('Please enter valid base dimensions');
+            }
+        }
+
+        function resetFlatExtract() {
+            // Reset all form fields
+            document.getElementById('baseX').value = '';
+            document.getElementById('baseY').value = '';
+            document.getElementById('flatMaterial').value = '';
+            document.getElementById('flatThickness').innerHTML = '<option value="">Select Thickness</option>';
+            document.getElementById('bendsX').value = '0';
+            document.getElementById('bendsY').value = '0';
+            document.getElementById('allEqual').checked = true;
+            document.getElementById('showAdvanced').checked = false;
+            document.getElementById('advancedOptions').style.display = 'none';
+            document.getElementById('kFactor').value = '0.44';
+            document.getElementById('radiusMode').value = 'auto';
+            document.getElementById('manualRadius').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+
+            // Reset bend definitions
+            updateBendDefinitions();
+
+            // Call Taipy backend function to reset
+            if (typeof invoke !== 'undefined') {
+                invoke('reset_flat_extract')
+                    .then(result => {
+                        // Backend reset successful
+                    })
+                    .catch(error => {
+                        console.error('Error resetting flat extract:', error);
+                    });
+            }
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight active navigation
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Initialize flatExtract functionality
+            initializeFlatExtract();
+
+            // Initialize operations editor
+            initializeOperationsEditor();
+
+            // Load saved global rates
+            loadGlobalRates();
+
+            // Add event listeners for dynamic updates
+            document.getElementById('bendsX').addEventListener('input', updateBendDefinitions);
+            document.getElementById('bendsY').addEventListener('input', updateBendDefinitions);
+        });
+
+        function initializeFlatExtract() {
+            // Set initial units
+            changeUnits('in');
+
+            // Initialize bend definitions
+            updateBendDefinitions();
+
+            // Add real-time calculation for basic inputs
+            const basicInputs = ['baseX', 'baseY', 'flatMaterial'];
+            basicInputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', function() {
+                        // Auto-calculate when basic inputs change
+                        if (document.getElementById('baseX').value &&
+                            document.getElementById('baseY').value &&
+                            document.getElementById('flatMaterial').value) {
+                            calculateFlatExtract();
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

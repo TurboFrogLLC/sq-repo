@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopQuote - Manufacturing Quote Generation</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        /* Header - Fixed Layout */
+        .app-header {
+            background: linear-gradient(to right, #ffffff 0%, #000000 100%);
+            color: #000000;
+            padding: 20px;
+            width: 100%; /* Full width for fixed layout */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-sizing: border-box;
+            height: 80px; /* Fixed height from design tokens */
+        }
+
+        .brand-container h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .company-tag {
+            font-size: 12px;
+            color: #000000;
+            font-weight: 400;
+        }
+
+        /* Layout Structure - Fixed Width Implementation */
+        .layout-container {
+            width: 1200px; /* Fixed width for consistent layout */
+            min-width: 1200px; /* Prevent squeezing */
+            margin: 100px auto 20px auto; /* Center the fixed width, account for header */
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* Enable horizontal scroll for narrow windows */
+        body {
+            overflow-x: auto;
+            min-width: 800px;
+        }
+
+        /* Sidebar - Fixed Width */
+        .sidebar {
+            width: 300px; /* Fixed width from design tokens */
+            background: #f8f9fa;
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 100px; /* Below header */
+            left: 20px; /* Match container padding */
+            height: calc(100vh - 120px); /* Full height minus header and margins */
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-brand {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(to right, #ffffff 0%, #000000 100%);
+            border-radius: 6px;
+        }
+
+        .sidebar-brand h2 {
+            margin: 0;
+            color: #111;
+            font-size: 20px;
+        }
+
+        .sidebar-brand .brand-quote {
+            color: #22c55e;
+        }
+
+        /* Main Content - Fixed Width */
+        .main-content {
+            margin-left: 340px; /* 300px sidebar + 40px gap */
+            width: 840px; /* 1200px total - 300px sidebar - 60px margins/padding */
+            min-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: white;
+            border: 1px solid #22c55e;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .welcome-section h1 {
+            color: #111;
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .welcome-section .welcome-subtitle {
+            color: #22c55e;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .welcome-section p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #111;
+            border: 1px solid #22c55e;
+        }
+
+        .btn-secondary:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        /* Content Cards Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            border-color: #22c55e;
+            box-shadow: 0 4px 8px rgba(34, 197, 94, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #111;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .feature-link {
+            color: #22c55e;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .feature-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Sidebar Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+            background: #ffffff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        /* Navigation Buttons - Consistent with operations.html */
+        .nav-button {
+            display: block;
+            width: 85%; /* Match operations.html 85% width */
+            margin: 0 auto 8px auto; /* Center with auto margins */
+            padding: 12px 16px;
+            background: #d1d5db;
+            color: #000000;
+            border: 1px solid #22c55e; /* Add green border for consistency */
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .nav-button:hover {
+            background: #22c55e; /* Green hover like operations.html */
+            color: #ffffff;
+            transform: translateY(-1px);
+            border-color: #000000;
+        }
+
+        .nav-button.active {
+            background: #6b7280;
+        }
+
+        /* Fixed Layout - No Responsive Scaling */
+        /* Horizontal scroll for narrow windows */
+        @media (max-width: 1300px) {
+            body {
+                overflow-x: auto;
+            }
+            .layout-container {
+                margin-left: 20px; /* Maintain left margin for scroll */
+            }
+        }
+
+        /* Emergency mobile layout - stack vertically */
+        @media (max-width: 900px) {
+            .layout-container {
+                width: 100%;
+                margin: 100px 10px 20px 10px;
+                padding: 0 10px;
+            }
+
+            .sidebar {
+                position: static;
+                width: 100%;
+                margin-bottom: 20px;
+                height: auto;
+                left: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .welcome-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Header -->
+    <div class="app-header">
+        <h1><span style='color:#111;'>shop</span><span style='color:#22c55e;'>Quote</span></h1>
+        <div class="company-tag">powered by Turbo Frog LLC</div>
+    </div>
+
+    <!-- Main Layout Container -->
+    <div class="layout-container">
+        <!-- Sidebar (30%) -->
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <h2><span style="color: white;">shop</span><span class="brand-quote">Quote</span></h2>
+            </div>
+
+            <div class="form-group">
+                <label for="in-quote-number">Quote #</label>
+                <input type="text" id="in-quote-number" placeholder="Enter Quote #" required>
+            </div>
+
+            <div class="form-group">
+                <label>File Upload & Processing</label>
+                <button id="btn-upload-files" class="nav-button" onclick="uploadFiles()">Upload Files</button>
+                <button id="btn-process-files" class="nav-button" onclick="processFiles()">Process Files</button>
+            </div>
+
+            <div class="form-group">
+                <label>Manual Mode</label>
+                <button id="btn-manual-mode" class="nav-button" onclick="manualEntry()">Manual Entry</button>
+            </div>
+
+            <div class="form-group">
+                <label>Settings</label>
+                <button id="btn-settings" class="nav-button" onclick="openSettings()">Settings</button>
+            </div>
+        </div>
+
+        <!-- Main Content (70%) -->
+        <div class="main-content">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1>Welcome to ShopQuote</h1>
+                <div class="welcome-subtitle">Streamline Your Manufacturing Quotes</div>
+                <p>
+                    Transform CAD files into professional quotes with AI-powered estimation.
+                    Upload your drawings, let our intelligent OCR extract data automatically,
+                    and generate accurate manufacturing quotes in seconds.
+                </p>
+                <div class="welcome-actions">
+                    <button class="btn-primary" onclick="startNewQuote()">Get Started</button>
+                    <button class="btn-secondary" onclick="learnMore()">Learn More</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function startNewQuote() {
+            const quoteNumber = document.getElementById('in-quote-number').value;
+            if (!quoteNumber.trim()) {
+                alert('Please enter a Quote Number to continue.');
+                document.getElementById('in-quote-number').focus();
+                return;
+            }
+            // Navigate to main page with quote number
+            alert('Starting new quote: ' + quoteNumber + '\n\n(This would navigate to the main page with hero content)');
+        }
+
+        function processFiles() {
+            alert('Process Files - This would process uploaded files');
+        }
+
+        function manualEntry() {
+            const quoteNumber = document.getElementById('in-quote-number').value;
+            if (!quoteNumber.trim()) {
+                alert('Please enter a Quote Number to continue.');
+                document.getElementById('in-quote-number').focus();
+                return;
+            }
+            // Navigate to manual entry mode
+            alert('Manual entry mode: ' + quoteNumber + '\n\n(This would navigate to manual data entry)');
+        }
+
+        function openSettings() {
+            alert('Settings modal would open here');
+        }
+
+        function learnMore() {
+            alert('Learn More - This would open documentation or tutorial');
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight active navigation
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

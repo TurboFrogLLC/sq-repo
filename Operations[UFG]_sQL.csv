@@ -1,0 +1,30 @@
+operation,setup_min,runtime_sec
+Plan,30.0,0.0
+Shear,10.0,10.0
+Reshear,10.0,8.0
+Laser,12.0,12.0
+Saw,5.0,10.0
+CNC Punch,12.0,12.0
+CNC Mill,12.0,12.0
+Material Handle,5.0,5.0
+Drill,10.0,10.0
+Countersink,10.0,10.0
+Counterbore,10.0,10.0
+Tap,10.0,8.0
+Up Drill,10.0,10.0
+Spot Drill,10.0,10.0
+Ream,10.0,5.0
+Notch,10.0,10.0
+Form,20.0,20.0
+Deburr,5.0,10.0
+Tumble,10.0,10.0
+Wire Brush,7.0,7.0
+Radius,20.0,10.0
+Spot Weld,10.0,15.0
+Weld,0.0,40.0
+Install,10.0,10.0
+Part Marking,10.0,15.0
+Metal Stamp,10.0,10.0
+Inspect,5.0,5.0
+Final Insp.,5.0,10.0
+Package,5.0,10.0
